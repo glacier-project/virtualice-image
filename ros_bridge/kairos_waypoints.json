@@ -1,0 +1,7 @@
+{
+ "_source": "pose [x, y, th] at the end of each mission in ICE_DIR/remote-ice-controller/traces/demo_v4b_complete.csv (gadget demo); initial = pose before the first mission",
+ "kairos_a": {"initial": [2.28, -3.46, 1.61], "gotoWarehouse": [2.93, -2.18, -3.14], "shiftRight": [2.93, -2.01, -3.14],
+              "gotoLoadUnloadBay": [4.61, -2.10, 1.59], "home": [2.28, -3.46, 1.61]},
+ "kairos_b": {"initial": [1.21, -3.49, 1.50], "gotoCell5Bay": [5.64, -3.63, 1.58], "gotoTrashBin": [0.38, -3.68, 1.76],
+              "home": [1.21, -3.49, 1.50]}
+}
