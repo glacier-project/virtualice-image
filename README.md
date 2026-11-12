@@ -97,3 +97,24 @@ chmod +x clean_env.sh
 # and then start again
 docker-compose up -d
 ```
+## Kafka contract: the same messages as the real line
+
+What this stack publishes on Kafka must be a subset of what the real ICE line publishes, in the same
+form (topic, measurement, tags, field names and types). The contract is built from the raw Kafka
+recordings of the line (ICE_DIR/kafka-record/record/raw) and stored in `kafka/contract.json`:
+
+```bash
+python3 utils/kafka_contract.py catalog ~/ICE_DIR/kafka-record/record/raw/*.jsonl   # rebuild kafka/contract.json
+python3 utils/kafka_contract.py check messages.jsonl                               # must report 0 outside
+```
+
+`utils/kafka_contract.py` also builds, for an OPC UA variable, the line the real line publishes for it
+(`contract_line`). Consumers (e.g. Unity) adapt to these messages, never the other way round.
+
+`ros_bridge/` holds the formats of the RB-Kairos ROS bridge (pose and UR arm, straight to Kafka on the
+real line, not through OPC UA), the arm motion recorded per mission and the end-of-mission poses: see
+[ros_bridge/README.md](ros_bridge/README.md).
+
+## ICE Teach digital twin
+
+`ice_teach/` runs the ICE Teach Unity build against this stack: see [ice_teach/README.md](ice_teach/README.md).
