@@ -1,0 +1,6 @@
+# the ice-frost models, plus the brokers of KafkaBridge.lf
+-r ../ice-frost/requirements.txt
+aiokafka>=0.12
+aio-pika>=9.5
+PyYAML
+networkx  # ice-frost src/MetaConveyor_utils/pallet_distance.py, not in its requirements

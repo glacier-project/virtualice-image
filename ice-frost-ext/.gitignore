@@ -1,0 +1,7 @@
+.venv/
+src-gen/
+bin/
+include/
+*.log
+kafka_bridge.jsonl
+__pycache__/

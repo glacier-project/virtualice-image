@@ -1,0 +1,585 @@
+{
+  "jobs": [
+    {
+      "id": "gadget",
+      "name": "Demo Gadget (linea_fittizia, sessione-completa)",
+      "priority": 1,
+      "due_date": null,
+      "tasks": [
+        {
+          "id": "0001",
+          "name": "RESERVE_PALLETS",
+          "processing_time": 2,
+          "dependencies": [],
+          "requires": [
+            "conveyor"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0002",
+          "name": "EXTRACT_TRAY",
+          "processing_time": 27,
+          "dependencies": [],
+          "requires": [
+            "warehouse"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0003",
+          "name": "GOTO_WAREHOUSE",
+          "processing_time": 22,
+          "dependencies": [],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0004",
+          "name": "PICK_PARTS",
+          "processing_time": 97,
+          "dependencies": [
+            "0003",
+            "0002"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0005",
+          "name": "KAIROS_TO_BAY",
+          "processing_time": 23,
+          "dependencies": [
+            "0004"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0006",
+          "name": "P9_TO_LOAD",
+          "processing_time": 30,
+          "dependencies": [
+            "0004",
+            "0001"
+          ],
+          "requires": [
+            "pallet9"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0007",
+          "name": "LOAD_BOARD",
+          "processing_time": 18,
+          "dependencies": [
+            "0005",
+            "0006"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0008",
+          "name": "P9_TO_CELL1",
+          "processing_time": 60,
+          "dependencies": [
+            "0007"
+          ],
+          "requires": [
+            "pallet9"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0009",
+          "name": "P7_TO_LOAD",
+          "processing_time": 60,
+          "dependencies": [
+            "0007"
+          ],
+          "requires": [
+            "pallet7"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0010",
+          "name": "LOAD_COVERS",
+          "processing_time": 85,
+          "dependencies": [
+            "0009"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0011",
+          "name": "QC_BOARD",
+          "processing_time": 72,
+          "dependencies": [
+            "0008"
+          ],
+          "requires": [
+            "cell1"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0012",
+          "name": "RESET_MOBILE",
+          "processing_time": 18,
+          "dependencies": [
+            "0010"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0013",
+          "name": "P7_TO_CELL5",
+          "processing_time": 30,
+          "dependencies": [
+            "0010"
+          ],
+          "requires": [
+            "pallet7"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0014",
+          "name": "QC_COVERS",
+          "processing_time": 6,
+          "dependencies": [
+            "0013"
+          ],
+          "requires": [
+            "cell5"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0015",
+          "name": "P7_TO_CELL5_3",
+          "processing_time": 6,
+          "dependencies": [
+            "0014"
+          ],
+          "requires": [
+            "pallet7"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0016",
+          "name": "BIN_COVERS",
+          "processing_time": 210,
+          "dependencies": [
+            "0015"
+          ],
+          "requires": [
+            "kairos_b"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0017",
+          "name": "P9_TO_CELL4",
+          "processing_time": 50,
+          "dependencies": [
+            "0011"
+          ],
+          "requires": [
+            "pallet9"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0018",
+          "name": "BUFFER_BOARD",
+          "processing_time": 18,
+          "dependencies": [
+            "0017"
+          ],
+          "requires": [
+            "cell4"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0019",
+          "name": "PICK_COVERS_2",
+          "processing_time": 135,
+          "dependencies": [
+            "0014",
+            "0012"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0020",
+          "name": "KAIROS_TO_BAY_2",
+          "processing_time": 24,
+          "dependencies": [
+            "0019"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0021",
+          "name": "P8_TO_LOAD",
+          "processing_time": 45,
+          "dependencies": [
+            "0019"
+          ],
+          "requires": [
+            "pallet8"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0022",
+          "name": "LOAD_COVERS_2",
+          "processing_time": 90,
+          "dependencies": [
+            "0020",
+            "0021"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0023",
+          "name": "RESET_MOBILE_2",
+          "processing_time": 18,
+          "dependencies": [
+            "0022"
+          ],
+          "requires": [
+            "kairos_a"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0024",
+          "name": "P8_TO_CELL5",
+          "processing_time": 30,
+          "dependencies": [
+            "0022"
+          ],
+          "requires": [
+            "pallet8"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0025",
+          "name": "QC_COVERS_2",
+          "processing_time": 6,
+          "dependencies": [
+            "0024"
+          ],
+          "requires": [
+            "cell5"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0026",
+          "name": "P8_TO_CELL4",
+          "processing_time": 35,
+          "dependencies": [
+            "0025",
+            "0018"
+          ],
+          "requires": [
+            "pallet8"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0027",
+          "name": "ASSEMBLE_GADGET",
+          "processing_time": 135,
+          "dependencies": [
+            "0026"
+          ],
+          "requires": [
+            "cell4"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0028",
+          "name": "P8_TO_CELL2",
+          "processing_time": 40,
+          "dependencies": [
+            "0027"
+          ],
+          "requires": [
+            "pallet8"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0029",
+          "name": "ENGRAVE_GADGET",
+          "processing_time": 131,
+          "dependencies": [
+            "0028"
+          ],
+          "requires": [
+            "cell2"
+          ],
+          "priority": 1
+        },
+        {
+          "id": "0030",
+          "name": "MILLING_POST",
+          "processing_time": 9,
+          "dependencies": [
+            "0029"
+          ],
+          "requires": [
+            "cell2"
+          ],
+          "priority": 1
+        }
+      ]
+    }
+  ],
+  "machines": [
+    {
+      "id": "cell1",
+      "name": "cell1",
+      "capabilities": [
+        "cell1"
+      ]
+    },
+    {
+      "id": "cell2",
+      "name": "cell2",
+      "capabilities": [
+        "cell2"
+      ]
+    },
+    {
+      "id": "cell4",
+      "name": "cell4",
+      "capabilities": [
+        "cell4"
+      ]
+    },
+    {
+      "id": "cell5",
+      "name": "cell5",
+      "capabilities": [
+        "cell5"
+      ]
+    },
+    {
+      "id": "conveyor",
+      "name": "conveyor",
+      "capabilities": [
+        "conveyor"
+      ]
+    },
+    {
+      "id": "kairos_a",
+      "name": "kairos_a",
+      "capabilities": [
+        "kairos_a"
+      ]
+    },
+    {
+      "id": "kairos_b",
+      "name": "kairos_b",
+      "capabilities": [
+        "kairos_b"
+      ]
+    },
+    {
+      "id": "pallet7",
+      "name": "pallet7",
+      "capabilities": [
+        "pallet7"
+      ]
+    },
+    {
+      "id": "pallet8",
+      "name": "pallet8",
+      "capabilities": [
+        "pallet8"
+      ]
+    },
+    {
+      "id": "pallet9",
+      "name": "pallet9",
+      "capabilities": [
+        "pallet9"
+      ]
+    },
+    {
+      "id": "warehouse",
+      "name": "warehouse",
+      "capabilities": [
+        "warehouse"
+      ]
+    }
+  ],
+  "travel_times": {
+    "cell1": {
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "cell2": {
+      "cell1": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "cell4": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "cell5": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "conveyor": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "kairos_a": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "kairos_b": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "pallet7": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet8": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "pallet8": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet9": 0,
+      "warehouse": 0
+    },
+    "pallet9": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "warehouse": 0
+    },
+    "warehouse": {
+      "cell1": 0,
+      "cell2": 0,
+      "cell4": 0,
+      "cell5": 0,
+      "conveyor": 0,
+      "kairos_a": 0,
+      "kairos_b": 0,
+      "pallet7": 0,
+      "pallet8": 0,
+      "pallet9": 0
+    }
+  }
+}

@@ -1,0 +1,304 @@
+# Durations [s] measured on the recorded gadget run; a list: one per occurrence.
+time_precision: MSECS
+logging_level: ERROR
+reactors:
+  frost_link:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/frost_link.yml"
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  conveyor:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/conveyor.yml"
+      conveyor_graph: "../ice-frost/resources/conveyor_graph/conveyor_graph.gml"
+      pallet_metric: "DISTANCE"
+    reactors:
+     message_filter:
+       logging_level: ERROR
+     conveyor_belt:
+       logging_level: ERROR
+       reactors:
+          controller:
+            logging_level: ERROR
+            parameters:
+              initial_pallets: [[Segment_1, 4], [Segment_2, 7], [Segment_2, 6], [Segment_3, 9], [Segment_6, 10], [Segment_6, 5],
+                                [Segment_7, 8], [Segment_7, 2], [Segment_8, 3], [Segment_8, 1]]
+          Segment_1:
+            logging_level: ERROR
+            parameters:
+              segment_time: 12700
+          Segment_2:
+              logging_level: ERROR
+              parameters:
+                segment_time: 20200            
+          Segment_3:
+            logging_level: ERROR
+            parameters:
+              segment_time: 13250
+          Segment_4:
+            logging_level: ERROR
+            parameters:
+              segment_time: 8691
+          Segment_5:
+            logging_level: ERROR
+            parameters:
+              segment_time: 6900
+          Segment_6:
+            logging_level: ERROR
+            parameters:
+              segment_time: 14500
+          Segment_7:
+            logging_level: ERROR
+            parameters:
+              segment_time: 20200
+          Segment_8:
+            logging_level: ERROR
+            parameters:
+              segment_time: 12700
+          EM:
+            logging_level: ERROR
+            parameters:
+              mutex_time: 2500
+          HB: 
+            logging_level: ERROR
+            parameters:
+              interchange_time: 4800           
+          Bay2:
+            logging_level: ERROR
+            reactors:      
+              "1":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2077
+                  backward_time: 1272
+              "2":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 4857
+                  backward_time: 1766
+              "3":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2000
+                  backward_time: 4413
+          Bay3:
+            logging_level: ERROR
+            reactors:      
+              "1":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 3779
+                  backward_time: 2833
+              "2":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2173
+                  backward_time: 3925
+              "3":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2000
+                  backward_time: 2061
+          Bay4:
+            logging_level: ERROR
+            reactors:    
+              "1":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2603
+                  backward_time: 1585
+              "2":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 4292
+                  backward_time: 2809
+              "3":
+                logging_level: ERROR
+                parameters:
+                  forward_time: 2000
+                  backward_time: 3492
+          LoadUnloadZone:
+            logging_level: ERROR
+          # Additional conveyor components
+          H:
+            logging_level: ERROR
+          IC:
+            logging_level: ERROR  
+          A:
+            logging_level: ERROR
+          B:
+            logging_level: ERROR
+          C:
+            logging_level: ERROR
+          D:
+            logging_level: ERROR
+          E:
+            logging_level: ERROR
+          F:
+            logging_level: ERROR
+          FA:
+            logging_level: ERROR
+          I:
+            logging_level: ERROR
+          L:
+            logging_level: ERROR
+          M:
+            logging_level: ERROR
+          LD:
+            logging_level: ERROR
+          Bay1_1:
+            logging_level: ERROR
+  scheduler:
+    logging_level: WARNING
+    parameters:
+      data_model_path: "resources/scheduler_tasks/demo-gadget-scheduler.yml"
+      scheduling_instance: "resources/schedules/simulation-gadget-demo.json"
+      task_mapping:
+        RESERVE_PALLETS: /Scheduler/RESERVE_PALLETS
+        EXTRACT_TRAY: /Scheduler/EXTRACT_TRAY
+        GOTO_WAREHOUSE: /Scheduler/GOTO_WAREHOUSE
+        PICK_PARTS: /Scheduler/PICK_PARTS
+        KAIROS_TO_BAY: /Scheduler/KAIROS_TO_BAY
+        P9_TO_LOAD: /Scheduler/P9_TO_LOAD
+        LOAD_BOARD: /Scheduler/LOAD_BOARD
+        P9_TO_CELL1: /Scheduler/P9_TO_CELL1
+        P7_TO_LOAD: /Scheduler/P7_TO_LOAD
+        LOAD_COVERS: /Scheduler/LOAD_COVERS
+        QC_BOARD: /Scheduler/QC_BOARD
+        RESET_MOBILE: /Scheduler/RESET_MOBILE
+        P7_TO_CELL5: /Scheduler/P7_TO_CELL5
+        QC_COVERS: /Scheduler/QC_COVERS
+        P7_TO_CELL5_3: /Scheduler/P7_TO_CELL5_3
+        BIN_COVERS: /Scheduler/BIN_COVERS
+        P9_TO_CELL4: /Scheduler/P9_TO_CELL4
+        BUFFER_BOARD: /Scheduler/BUFFER_BOARD
+        PICK_COVERS_2: /Scheduler/PICK_COVERS_2
+        KAIROS_TO_BAY_2: /Scheduler/KAIROS_TO_BAY_2
+        P8_TO_LOAD: /Scheduler/P8_TO_LOAD
+        LOAD_COVERS_2: /Scheduler/LOAD_COVERS_2
+        RESET_MOBILE_2: /Scheduler/RESET_MOBILE_2
+        P8_TO_CELL5: /Scheduler/P8_TO_CELL5
+        QC_COVERS_2: /Scheduler/QC_COVERS_2
+        P8_TO_CELL4: /Scheduler/P8_TO_CELL4
+        ASSEMBLE_GADGET: /Scheduler/ASSEMBLE_GADGET
+        P8_TO_CELL2: /Scheduler/P8_TO_CELL2
+        ENGRAVE_GADGET: /Scheduler/ENGRAVE_GADGET
+        MILLING_POST: /Scheduler/MILLING_POST
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  warehouse:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/warehouse.yml"
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  kairos_a:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/rbkairos.yml"
+      durations:
+        gotoWarehouse: [22.2, 20.9]
+        pickCovertopFromWarehouse: [41.7, 19.7, 52.9]
+        pickCoverbottomFromWarehouse: [34.0, 34.1]
+        pickBoardFromWarehouse: 21.5
+        gotoLoadUnloadBay: [23.2, 24.1]
+        placeBoardToPallet: 17.6
+        placeCovertopToPallet: [44.3, 47.2]
+        placeCoverbottomToPallet: [41.0, 41.3]
+        home: [17.5, 17.2]
+        shiftRight: 6.9
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  kairos_b:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/rbkairos.yml"
+      durations:
+        gotoCell5Bay: 34.3
+        pickCovertopFromPallet: 40.3
+        pickCoverbottomFromPallet: 36.8
+        gotoTrashBin: 36.9
+        dropCoversToTrashBin: 44.8
+        home: 14.2
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  cell1:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/cell1.yml"
+      durations:
+        BoardIn: 4.0
+        StartTest: 63.8     # trace: TestingBoard
+        BoardOut: 3.8
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  etensil:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/etensil.yml"
+      default_duration: 2.6
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  cell2:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/cell2.yml"
+      durations:
+        EngraveText: 131.1
+        demo_gadget_post: 8.3
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  cell4:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/cell4.yml"
+      durations:
+        pick_from_pallet: 17.5
+        submit_operation: [42.3, 26.8, 48.0, 13.8]
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  cell5:
+    logging_level: ERROR
+    parameters:
+      data_model_path: "../ice-frost/resources/data_model/cell5.yml"
+      path: "../ice-frost/src/fmu/QualityCell.fmu"
+      step_size: 1.0
+    reactors:
+      message_filter:
+        logging_level: ERROR
+  kafka_bridge:
+    logging_level: WARNING
+    parameters:
+      # Frost machine -> topic prefix of the real line in kafka/contract.json
+      machines:
+        conveyor: ice_data_conveyor
+        cell1: ice_data_cell1
+        cell2: ice_data_cell2
+        cell4: ice_data_cell4
+        cell5: ice_data_cell5
+        warehouse: ice_data_cell6
+        etensil: ice_data_etensil
+        kairos_a: ice_data_rbkairos_a
+        kairos_b: ice_data_rbkairos_b
+      kairos:
+        kairos_a: a
+        kairos_b: b
+      # RabbitMQ queues of ICE Teach's RabbitClient (requests carry the OPC UA path of the real server)
+      rpc_queues: [conveyor_rpc_queue, cell4_rpc_queue, cell2_rpc_queue, quality_control_rpc_queue,
+                   rbkairos_a_rpc_queue, rbkairos_b_rpc_queue]
+      # cover colours FrostTwin draws (the model has none): what QC_COVERS / QC_COVERS_2 expect
+      cover_colors: {7: yellow, 8: red}
+    reactors:
+      message_filter:
+        logging_level: ERROR

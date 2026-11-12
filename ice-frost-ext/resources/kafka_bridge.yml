@@ -1,0 +1,10 @@
+name: "kafka_bridge"
+machine_category: "unknown"
+machine_type: "unknown"
+machine_model: "unknown"
+description: "Publishes the Frost line on Kafka/RabbitMQ as the real ICE line (KafkaBridge.lf)"
+root:
+  !!FolderNode
+  name: "Objects"
+  description: ""
+  children: []

@@ -1,0 +1,39 @@
+target Python
+
+import FrostReactor from <frost/FrostReactor.lf>
+
+// Writes "<t [s]>  <machine>  <path> = <value>" for every update of the variables in watch_path (machine -> [paths]).
+reactor Recorder(model_path = "", watch_path = "", out_path = "frost_events.log") extends FrostReactor{
+    // _data_model_path cannot be set on instantiation (Python name mangling of the LF parameter)
+    state model_set = {= setattr(self, "data_model_path", self.model_path) =}
+    state watch
+    state out
+    logical action subscribe
+
+    reaction(startup) -> subscribe{=
+        import yaml
+        self.watch = yaml.safe_load(open(self.watch_path)) if self.watch_path else {}
+        self.out = open(self.out_path, "w", buffering=1)
+        subscribe.schedule(0)
+    =}
+
+    reaction(subscribe) -> channel_out, subscribe{=
+        if not self.connected:
+            subscribe.schedule(self.update_step)
+            return
+        msgs = [self.message_builder.build_subscribe_variable_message(target=machine, node=path)
+                for machine, paths in self.watch.items() for path in paths]
+        self._set_output_port(msgs, channel_out)
+    =}
+
+    reaction(message_filter.responses){=
+        t = lf.time.logical_elapsed() / 1e9
+        for _, msg in message_filter.responses.value:
+            if msg.header.namespace == MsgNamespace.VARIABLE and msg.header.msg_name == VariableMsgName.UPDATE:
+                self.out.write(f"{t:.3f}  {msg.sender}  {msg.payload.node.lstrip('/')} = {msg.payload.value}\n")
+    =}
+
+    reaction(shutdown){=
+        self.out.close()
+    =}
+}

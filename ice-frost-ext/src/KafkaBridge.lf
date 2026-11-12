@@ -1,0 +1,174 @@
+target Python
+
+import FrostReactor from <frost/FrostReactor.lf>
+
+preamble{=
+import json
+import uuid
+import bridge_bus
+import bridge_map
+import conveyor_twin
+import kairos_motion
+import ros_bridge
+from machine_data_model.protocols.frost_v1.frost_header import MsgType, MsgNamespace, VariableMsgName, MethodMsgName
+=}
+
+/**
+ * Publishes the Frost line on the virtualice-image stack the way the real ICE line does, so ICE Teach
+ * runs on it as on the plant. Observes the ice-frost machines from the link only (no change to them):
+ * - every variable of `machines` that the line publishes (kafka/contract.json), as the line writes it,
+ *   on change, plus the current values once at start;
+ * - RB-Kairos pose and arm as the robots' ROS bridge (ros_bridge/), driven by the Kairos missions;
+ * - the RabbitMQ RPC queues ICE Teach calls (reads, writes, methods on the Frost machines);
+ * - the pallet motion and content of the conveyor model for FrostTwin (ice_data_conveyor_twin, not a line topic).
+ * Every published message also goes to record_path (JSON lines), which the offline checks read.
+ * Settings: reactors.kafka_bridge.parameters of the run configuration; brokers from the environment.
+ */
+reactor KafkaBridge(model_path = "", contract_path = "", waypoints_path = "", arm_path = "") extends FrostReactor {
+    // _data_model_path cannot be set on instantiation (Python name mangling of the LF parameter)
+    state model_set = {= setattr(self, "data_model_path", self.model_path) =}
+    state machines = {= {} =}     # Frost machine -> contract topic prefix (ice_data_cell6, ...)
+    state kairos = {= {} =}       # Frost machine -> ROS robot name ("a" / "b")
+    state rpc_queues = {= [] =}   # RabbitMQ queues ICE Teach sends its requests to
+    state cover_colors = {= {} =} # pallet -> cover colour drawn by FrostTwin (the model has no colours)
+    state record_path = "kafka_bridge.jsonl"
+    state lines
+    state bus
+    state twin
+    state record
+    state motion = {= {} =}
+    state last = {= {} =}         # (machine, path) -> value last published
+    state reads = {= set() =}     # correlation ids of the start-up reads
+    state rpc = {= {} =}          # correlation id -> RPC reply queue
+    logical action subscribe
+    timer tick(0, 20 msec)
+
+    method now_s(){= return lf.time.logical_elapsed() / 1e9 =}
+
+    method ts(){= return lf.time.start() + lf.time.logical_elapsed() =}
+
+    method publish(topic, value){=
+        if self.record:
+            self.record.write(json.dumps({"t": round(self.now_s(), 3), "topic": topic, "value": value}) + "\n")
+        self.bus.publish(topic, value)
+    =}
+
+    reaction(startup) -> subscribe{=
+        conf = FROST_CONFIG.get("reactors", {})
+        machines = {m: (conf[m]["parameters"]["data_model_path"], prefix) for m, prefix in self.machines.items() if m in conf}
+        self.lines = bridge_map.LineMap(machines, json.load(open(self.contract_path)))
+        self.twin = conveyor_twin.ConveyorTwin(conveyor_twin.Timings(FROST_CONFIG), self.cover_colors) if "conveyor" in machines else None
+        waypoints = json.load(open(self.waypoints_path)) if self.waypoints_path else {}
+        arm = json.load(open(self.arm_path)) if self.arm_path else {}
+        for m, robot in self.kairos.items():
+            p = conf.get(m, {}).get("parameters", {})
+            self.motion[m] = kairos_motion.KairosMotion(robot, waypoints.get(m, {}), p.get("durations", {}),
+                                                        float(p.get("default_duration", 10.0)), arm.get(m, {}))
+        self.record = open(self.record_path, "w", buffering=1) if self.record_path else None
+        self.bus = bridge_bus.Bus(self.rpc_queues)
+        kafka, rabbit = self.bus.start()
+        self.logger.warning("Kafka bridge: %d variables of %s, Kafka %s, RabbitMQ %s", sum(map(len, self.lines.published.values())),
+                            ", ".join(machines), "on" if kafka else "off", "on" if rabbit else "off")
+        subscribe.schedule(0)
+    =}
+
+    reaction(subscribe) -> channel_out, subscribe{=
+        if not self.connected:
+            subscribe.schedule(self.update_step)
+            return
+        msgs = []
+        for machine, paths in self.lines.published.items():
+            for path in paths:
+                msgs.append(self.message_builder.build_subscribe_variable_message(target=machine, node=path))
+                read = self.message_builder.build_read_variable_message(target=machine, node=path)
+                self.reads.add(read.correlation_id)
+                msgs.append(read)
+        self._set_output_port(msgs, channel_out)
+    =}
+
+    method on_value(machine, path, value){=
+        key = (machine, path)
+        if key in self.last and self.last[key] == value:
+            return
+        self.last[key] = value
+        line = self.lines.line(machine, path, value, self.ts())
+        if line:
+            self.publish(*line)
+        if machine == "conveyor" and self.twin is not None:
+            self.twin.feed(path, value)
+        if machine in self.motion:
+            self.motion[machine].feed(path.rsplit("/", 1)[-1], value, self.now_s())
+    =}
+
+    method rpc_value(msg){=
+        if msg.header.namespace == MsgNamespace.METHOD:
+            ret = getattr(msg.payload, "ret", None) or {}
+            first = next(iter(ret.values()), None)
+            return first[1] if isinstance(first, (list, tuple)) and len(first) == 2 else first
+        return getattr(msg.payload, "value", None)
+    =}
+
+    reaction(message_filter.responses){=
+        for _, msg in message_filter.responses.value:
+            h = msg.header
+            if msg.correlation_id in self.rpc:
+                if h.namespace == MsgNamespace.METHOD and h.msg_name == MethodMsgName.STARTED:
+                    continue  # answer when it completes
+                reply_to = self.rpc.pop(msg.correlation_id)
+                self.bus.reply(reply_to, msg.correlation_id,
+                               bridge_map.rpc_reply(msg.correlation_id, self.rpc_value(msg), h.type != MsgType.ERROR))
+                continue
+            if h.namespace != MsgNamespace.VARIABLE or h.type == MsgType.ERROR:
+                continue
+            if h.msg_name == VariableMsgName.UPDATE or (h.msg_name == VariableMsgName.READ and msg.correlation_id in self.reads):
+                self.reads.discard(msg.correlation_id)
+                self.on_value(msg.sender, msg.payload.node.strip("/"), msg.payload.value)
+    =}
+
+    method rpc_message(queue_name, cid, request){=
+        args = request.get("args") or []
+        hit = self.lines.route(str(args[0]), queue_name) if args else None
+        if hit is None:
+            return None
+        machine, node = hit
+        b = self.message_builder
+        kind = request.get("method")
+        if kind == "read":
+            return b.build_read_variable_message(target=machine, node=node, correlation_id=cid)
+        if kind == "write" and len(args) > 1:
+            return b.build_write_variable_message(target=machine, node=node, value=args[1], correlation_id=cid)
+        if kind == "method":
+            return b.build_invoke_method_message(target=machine, node=node, correlation_id=cid, kwargs=request.get("kwargs") or {})
+        return None
+    =}
+
+    reaction(tick) -> channel_out{=
+        msgs = []
+        while not self.bus.requests.empty():
+            queue_name, reply_to, cid, request = self.bus.requests.get_nowait()
+            cid = cid or str(uuid.uuid4())
+            m = self.rpc_message(queue_name, cid, request)
+            if m is None:
+                self.logger.warning("RPC request on %s for an unknown node: %s", queue_name, request)
+                self.bus.reply(reply_to, cid, bridge_map.rpc_reply(cid, None, False))
+                continue
+            self.rpc[cid] = reply_to
+            msgs.append(m)
+        if msgs:
+            self._set_output_port(msgs, channel_out)
+        now, ts = self.now_s(), self.ts()
+        if self.twin is not None:
+            for command in self.twin.tick(now):
+                self.publish("ice_data_conveyor_twin", command)
+        for m in self.motion.values():
+            m.tick(now, ts)
+        while ros_bridge.OUTBOX:
+            self.publish(*ros_bridge.OUTBOX.popleft())
+    =}
+
+    reaction(shutdown){=
+        self.bus.stop()
+        if self.record:
+            self.record.close()
+    =}
+}

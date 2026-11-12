@@ -1,0 +1,73 @@
+target Python{
+    fast: True,
+    timeout: 1200 s,
+    files: [
+        "../../ice-frost/lf-packages/frost/src/python_lib/frost.py",
+        "../../ice-frost/lf-packages/frost/src/python_lib/l_formatter.py",
+        "../../ice-frost/lf-packages/frost/src/python_lib/time_utils.py",
+        "../../ice-frost/src/python_utils/handle_recipe.py",
+        "../../ice-frost/src/python_utils/vertical_warehouse.py",
+        "../../ice-frost/src/MetaConveyor_utils/pallet_distance.py",
+        "../../utils/kafka_contract.py",
+        "../../ros_bridge/ros_bridge.py",
+        "../../ros_bridge/kairos_arm.py",
+        "bridge/bridge_map.py",
+        "bridge/bridge_bus.py",
+        "bridge/conveyor_twin.py",
+        "bridge/kairos_motion.py"
+    ],
+    logging: error,
+    single-threaded: false,
+}
+
+// Gadget demo on the ice-frost models (recipe and timings in resources/), recorded for script/compare_trace.py
+// and published on the virtualice-image stack by KafkaBridge (no-op without brokers).
+//   lfc src/GadgetMain.lf && ../ice-frost/.venv/bin/python src-gen/GadgetMain/GadgetMain.py [--fast false]
+
+import CellConveyor from "../../ice-frost/src/CellConveyor.lf"
+import Cell1 from "../../ice-frost/src/Cell1.lf"
+import Cell2 from "../../ice-frost/src/Cell2.lf"
+import Cell4 from "../../ice-frost/src/Cell4.lf"
+import Cell5 from "../../ice-frost/src/Cell5.lf"
+import Kairos from "../../ice-frost/src/Kairos.lf"
+import Etensil from "../../ice-frost/src/Etensil.lf"
+import Warehouse from "../../ice-frost/src/Warehouse.lf"
+import Recorder from "Recorder.lf"
+import KafkaBridge from "KafkaBridge.lf"
+import FrostScheduler from <frost/scheduler/FrostScheduler.lf>
+import FrostLink from <frost/FrostLink.lf>
+
+preamble{=
+import uuid
+from frost import *
+
+from frost_planner.generator.instance_generator import load_instance_from_json
+from frost_planner.executor.static_executor import StaticExecutor
+from frost_planner.solver.dummy_solver import DummySolver
+from frost_planner.core.base import TaskStatus, Task, Job, SchedulingInstance, Machine
+from pallet_distance import _get_pallet_metric
+from pallet_distance import *
+=}
+
+main reactor{
+    conveyor = new CellConveyor(name="conveyor", _update_step = 1 msec, update_interval = 100 msec)
+    warehouse = new Warehouse(name="warehouse", update_interval = 100 msec)
+    kairos_a = new Kairos(name="kairos_a", update_interval = 100 msec)
+    kairos_b = new Kairos(name="kairos_b", update_interval = 100 msec)
+    cell1 = new Cell1(name="cell1", update_interval = 100 msec)
+    cell2 = new Cell2(name="cell2", update_interval = 100 msec)
+    cell4 = new Cell4(name="cell4", update_interval = 100 msec)
+    cell5 = new Cell5(name="cell5", update_interval = 100 msec)
+    etensil = new Etensil(name="etensil", update_interval = 100 msec)
+    scheduler = new FrostScheduler(name="scheduler")
+    recorder = new Recorder(name="recorder", model_path = "resources/recorder.yml",
+                            watch_path = "resources/recorder_watch.yml")
+    bridge = new KafkaBridge(name="kafka_bridge", model_path = "resources/kafka_bridge.yml", contract_path = "../kafka/contract.json",
+                             waypoints_path = "../ros_bridge/kairos_waypoints.json", arm_path = "../ros_bridge/kairos_arm_trajectories.json")
+    link = new FrostLink(name="frost_link", width = 12)
+
+    conveyor.channel_out, warehouse.channel_out, kairos_a.channel_out, kairos_b.channel_out, cell1.channel_out, cell2.channel_out,
+    cell4.channel_out, cell5.channel_out, etensil.channel_out, scheduler.channel_out, recorder.channel_out, bridge.channel_out -> link.channel_in after 0
+    link.channel_out -> conveyor.channel_in, warehouse.channel_in, kairos_a.channel_in, kairos_b.channel_in, cell1.channel_in, cell2.channel_in,
+    cell4.channel_in, cell5.channel_in, etensil.channel_in, scheduler.channel_in, recorder.channel_in, bridge.channel_in after 0
+}

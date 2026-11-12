@@ -1,0 +1,10 @@
+name: "recorder"
+machine_category: "unknown"
+machine_type: "unknown"
+machine_model: "unknown"
+description: "Records subscribed variables for compare_trace.py"
+root:
+  !!FolderNode
+  name: "Objects"
+  description: ""
+  children: []

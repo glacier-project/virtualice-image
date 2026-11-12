@@ -3,3 +3,8 @@ kafka/client.properties
 .envrc
 recordings/*
 kafka_*/
+ice-frost-ext/bin/
+ice-frost-ext/include/
+ice-frost-ext/src-gen/
+__pycache__/
+ice-frost-ext/frost_events.log

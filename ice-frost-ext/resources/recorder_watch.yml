@@ -1,0 +1,54 @@
+# machine -> variables recorded by Recorder.lf
+kairos_a: &kairos
+  - RBKairos/Mission_Methods/Control_Busy
+  - RBKairos/Mission_Methods/Ongoing_Mission_Name
+  - RBKairos/Mission_Methods/Last_Mission_Result
+kairos_b: *kairos
+warehouse:
+  - Warehouse/Status/trayInBay
+  - Warehouse/Status/bayBusy
+  - Warehouse/Statistics/TrayCallsCount
+cell1:
+  - Cell1/FlyingProbeTester/Busy
+  - Cell1/FlyingProbeTester/CurrentMission
+  - Cell1/FlyingProbeTester/LastResult
+cell2:
+  - Cell2/MES/MESBusy
+  - Cell2/MES/CurrentMission
+  - Cell2/MES/MESLastResult
+cell4:
+  - Objects/Cell_4_Robot_Coordinator_PLC/DataBlocksGlobal/DB_ROBOTS/plcOperationRunning
+  - Objects/Cell_4_Robot_Coordinator_PLC/DataBlocksGlobal/DB_ROBOTS/plcOperationDone
+etensil:
+  - eTensil/MES/busy
+cell5:
+  - Cell5/Status/Busy
+  - Cell5/Status/CurrentMission
+  - Cell5/Status/LastResult
+  - Cell5/Statistics/ChecksGadget
+  - Cell5/Statistics/FaultsGadget
+conveyor:
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_5
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_1_1
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_2_1
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_2_2
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_2_3
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_3_1
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_4_1
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_4_2
+  - Objects/ConveyorHMI/ConveyorDataExchange/Destinations/destination_palletid_4_3
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet7/destination
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet7/reserved
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet7/contentPosition1
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet7/contentPosition2
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet7/contentPosition3
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet8/destination
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet8/reserved
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet8/contentPosition1
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet8/contentPosition2
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet8/contentPosition3
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet9/destination
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet9/reserved
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet9/contentPosition1
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet9/contentPosition2
+  - Objects/ConveyorHMI/ConveyorObjects/Pallets/Pallet9/contentPosition3
