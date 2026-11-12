@@ -1,0 +1,8 @@
+# dotnet build output of frost_twin
+frost_twin/out/
+frost_twin/injector-out/
+frost_twin/*/bin/
+frost_twin/*/obj/
+__pycache__/
+replay_rpc.log
+qc_images/

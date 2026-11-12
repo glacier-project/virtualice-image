@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Built against the build's own assemblies (not copied): $(ICE_TEACH_DIR)/ICE Teach_Data/Managed,
+       ICE_TEACH_DIR from the environment (ice_teach/config.sh) -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Managed>$(ICE_TEACH_DIR)/ICE Teach_Data/Managed</Managed>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(Managed)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(Managed)/UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(Managed)/UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Confluent.Kafka"><HintPath>$(Managed)/Confluent.Kafka.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="RabbitMQ.Client"><HintPath>$(Managed)/RabbitMQ.Client.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(Managed)/Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
