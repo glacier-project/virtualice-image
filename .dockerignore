@@ -1,0 +1,12 @@
+**/.git
+**/.venv
+**/__pycache__
+**/src-gen
+**/*.log
+**/*.jsonl
+ice-frost-ext/bin
+ice-frost-ext/include
+ice_teach
+ice_player
+recordings
+kafka_*

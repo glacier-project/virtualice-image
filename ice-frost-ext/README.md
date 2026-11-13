@@ -26,7 +26,8 @@ KafkaBridge observes the machines through the Frost link, like Recorder, and pub
 - `ice_data_conveyor_twin` (not a line topic): pallet motion for FrostTwin (`../ice_teach`).
 Every published message is also written to `kafka_bridge.jsonl`.
 
-`lf-packages` links to the frost package of the ice-frost submodule. Setup and run from this folder:
+`lf-packages` links to the frost package of the ice-frost submodule. In Docker: `Dockerfile` (build context:
+the repository root), service `frost-ext` of `../docker-compose.yml`. Setup and run from this folder:
 
     python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
     source .venv/bin/activate && lfc src/GadgetMain.lf

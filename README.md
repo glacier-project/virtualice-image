@@ -10,6 +10,32 @@ Install](https://docs.docker.com/get-docker/).
 - Docker Compose: This is typically included with Docker Desktop, but you can also install it separately if needed. Check the [Docker Compose installation guide](https://docs.docker.com/compose/install/).
 - WSL2 (for Windows users): If you are using Windows, you need to have WSL2 installed and configured. Follow the instructions on the [WSL installation guide](https://docs.microsoft.com/en-us/windows/wsl/install).
 
+## Quick start: the line moving in Unity
+
+On any PC with Docker (Windows: Docker Desktop, nothing else):
+
+1. Clone with the submodules:
+   ```bash
+   git clone -b dev --recurse-submodules https://github.com/esd-univr/virtualice-image.git
+   ```
+2. Put a `.env` file in the repository root with the Kafka/RabbitMQ credentials used by ICE Teach
+   (ask for it, never commit it; an `.envrc` works as is, renamed):
+   ```
+   KAFKA_CLIENT_USER=...
+   KAFKA_CLIENT_PASSWORD=...
+   RABBITMQ_USERNAME=...
+   RABBITMQ_PASSWORD=...
+   ```
+3. Start the stack and the Frost line (the first time it builds the images, several minutes):
+   ```bash
+   docker compose up -d
+   ```
+4. Open ICE Teach (Unity Editor: Play, or the build). The `frost-ext` container waits for it on Kafka, then
+   runs the line for 20 minutes.
+
+Unity restarted, or the 20 minutes are over: `docker compose restart frost-ext`.
+Logs: `docker compose logs -f frost-ext`. Stop everything: `docker compose down`.
+
 ## Getting Started
 
 **Note**: Run all commands below in a Linux or macOS terminal with Docker support (on Windows, use WSL2).
@@ -48,20 +74,16 @@ Install](https://docs.docker.com/get-docker/).
     ```
 
 3. **Start the Docker Containers**:
-   Before starting the containers, generate the configuration files by running:
-   ```bash
-   chmod +x generate_client_config.sh
-    ./generate_client_config.sh
-    ```
-    
-    Then, start the Docker containers using Docker Compose:
     ```bash
-    docker-compose up -d
+    docker compose --env-file .envrc up -d
     ```
+    `kafka-init` creates the FrostTwin topics and exits; `frost-ext` runs the Frost line once ICE Teach is
+    connected (Quick start above). Compose (>= 2.23.1) writes the Kafka client configuration from the
+    credentials: `generate_client_config.sh` is needed only by `docker-compose-player.yml`.
 
 4. **Access the Services**:
     - **Kafka**: Access the Kafka service at `localhost:9093` from your local machine. Inside the Docker network, you can use the service name `kafka-0:9092`, `kafka-1:9092`, or `kafka-2:9092` to connect to the Kafka brokers.
-    - **RabbitMQ**: Access the RabbitMQ management interface at `http://localhost:30690` using the credentials specified in your `.envrc` file.
+    - **RabbitMQ**: AMQP at `localhost:30690`, management interface at `http://localhost:15672`, with the credentials of your `.envrc` file.
 
 
 5. **Send Messages to Kafka**:

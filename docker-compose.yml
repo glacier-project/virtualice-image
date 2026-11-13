@@ -49,8 +49,9 @@ services:
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
       # Configuration
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-    volumes:
-      - ./kafka/client.properties:/opt/bitnami/kafka/config/client.properties
+    configs:
+      - source: client_properties
+        target: /opt/bitnami/kafka/config/client.properties
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092", "--command-config", "/opt/bitnami/kafka/config/client.properties"]
       interval: 5s
@@ -90,8 +91,9 @@ services:
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
       # Configuration
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-    volumes:
-      - ./kafka/client.properties:/opt/bitnami/kafka/config/client.properties
+    configs:
+      - source: client_properties
+        target: /opt/bitnami/kafka/config/client.properties
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092", "--command-config", "/opt/bitnami/kafka/config/client.properties"]
       interval: 5s
@@ -131,8 +133,9 @@ services:
       - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
       # Configuration
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-    volumes:
-      - ./kafka/client.properties:/opt/bitnami/kafka/config/client.properties
+    configs:
+      - source: client_properties
+        target: /opt/bitnami/kafka/config/client.properties
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092", "--command-config", "/opt/bitnami/kafka/config/client.properties"]
       interval: 5s
@@ -169,6 +172,62 @@ services:
         condition: service_healthy
     networks:
       - net
+  # creates the FrostTwin topics once the brokers are up, then exits (was ice_teach/prepare_kafka.py):
+  # ice_data_conveyor_twin must exist before ICE Teach starts (FrostTwin reads partition 0 by assignment)
+  kafka-init:
+    image: 'bitnamilegacy/kafka:4.0.0'
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        for t in ice_data_conveyor_twin ice_data_qc_image; do
+          kafka-topics.sh --bootstrap-server kafka-0:9092 --command-config /opt/bitnami/kafka/config/client.properties \
+            --create --if-not-exists --topic $$t --partitions 1 --replication-factor 1 || exit 1
+        done
+    configs:
+      - source: client_properties
+        target: /opt/bitnami/kafka/config/client.properties
+    depends_on:
+      kafka-0:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - net
+  # Frost gadget line + KafkaBridge (ice-frost-ext): what ICE Teach shows, and the answers to its RPC requests.
+  # Waits for ICE Teach (Unity) on Kafka, then runs 20 min; Unity restarted: docker compose restart frost-ext
+  frost-ext:
+    image: 'frost-ext:latest'
+    build:
+      context: .
+      dockerfile: ice-frost-ext/Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-0:9092,kafka-1:9092,kafka-2:9092
+      - KAFKA_SECURITY_PROTOCOL=SASL_PLAINTEXT
+      - KAFKA_SASL_MECHANISM=SCRAM-SHA-512
+      - KAFKA_CLIENT_USER=${KAFKA_CLIENT_USER}
+      - KAFKA_CLIENT_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=30690
+      - RABBITMQ_VIRTUAL_HOST=/rpc
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - net
+# replaces generate_client_config.sh (no bash needed, e.g. on Windows); needs Docker Compose >= 2.23.1
+configs:
+  client_properties:
+    content: |
+      security.protocol=SASL_PLAINTEXT
+      sasl.mechanism=SCRAM-SHA-512
+      sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_CLIENT_USER}" password="${KAFKA_CLIENT_PASSWORD}";
 networks:
   net:
     external: false
